@@ -1,34 +1,38 @@
 body {
-    font-family: Arial, sans-serif;
-  }
-  
-  #messages {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  #messages li {
-    padding: 8px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  #form {
-    display: flex;
-  }
-  
-  #input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  #send {
-    padding: 10px;
-    border: none;
-    background: #007BFF;
-    color: white;
-    cursor: pointer;
-  }
-  
+  font-family: Arial, sans-serif;
+}
+
+#username, #set-username {
+  margin: 10px;
+  padding: 10px;
+}
+
+#messages {
+  list-style-type: none;
+  padding: 0;
+}
+
+#messages li {
+  padding: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+#form {
+  display: flex;
+}
+
+#input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+#send {
+  padding: 10px;
+  border: none;
+  background: #007BFF;
+  color: white;
+  cursor: pointer;
+}

@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 
-// Configuração do servidor Express
+// Configurando o server express
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -14,19 +14,19 @@ app.use(express.static('public'));
 io.on('connection', (socket) => {
   console.log('Novo usuário conectado');
 
-  // Escuta mensagens de chat
+  // Recebe a mensagem
   socket.on('chat message', (msg) => {
-    // Envia a mensagem para todos os clientes conectados
+    // Envia a todos conectados ao chat
     io.emit('chat message', msg);
   });
 
-  // Quando um cliente se desconecta
+  // Mensagem de usuario desconectado
   socket.on('disconnect', () => {
     console.log('Usuário desconectado');
   });
 });
 
-// Iniciar o servidor
+// Configurando a porta e o iniciando o servidor
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

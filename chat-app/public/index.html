@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <input id="username" placeholder="Enter your name" autocomplete="off" /><button id="set-username">Insira seu nome: </button>
   <ul id="messages"></ul>
   <form id="form" action="">
     <input id="input" autocomplete="off" /><button id="send">Send</button>
@@ -15,21 +16,29 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
+    let username = '';
 
-    // Faz o submit da mensagem
+    document.getElementById('set-username').addEventListener('click', () => {
+      const input = document.getElementById('username');
+      if (input.value) {
+        username = input.value;
+        input.style.display = 'none';
+        document.getElementById('set-username').style.display = 'none';
+      }
+    });
+
     document.getElementById('form').addEventListener('submit', (e) => {
       e.preventDefault();
       const input = document.getElementById('input');
-      if (input.value) {
-        socket.emit('chat message', input.value);
+      if (input.value && username) {
+        socket.emit('chat message', { username, message: input.value });
         input.value = '';
       }
     });
 
-    // Adiciona a mensagem na pagina
     socket.on('chat message', (msg) => {
       const item = document.createElement('li');
-      item.textContent = msg;
+      item.textContent = `${msg.username}: ${msg.message}`;
       document.getElementById('messages').appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });
