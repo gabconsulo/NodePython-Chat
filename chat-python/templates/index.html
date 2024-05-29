@@ -4,29 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
+    <link rel="stylesheet" href="../../template/styles.css">
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         document.addEventListener("DOMContentLoaded", () => {
             const socket = io();
 
-            socket.on('message', function(msg){
+            socket.on('message', function(data){
                 let messages = document.getElementById('messages');
                 let message = document.createElement('div');
-                message.textContent = msg;
+                message.classList.add('message');
+                message.innerHTML = `<strong>${data.user}</strong>: ${data.msg}`;
                 messages.appendChild(message);
+                messages.scrollTop = messages.scrollHeight;
             });
 
             document.getElementById('send').onclick = function() {
                 let message = document.getElementById('message').value;
-                socket.send(message);
+                let user = document.getElementById('username').value || 'Anonymous';
+                socket.send({user: user, msg: message});
                 document.getElementById('message').value = '';
             };
         });
     </script>
 </head>
 <body>
-    <div id="messages"></div>
-    <input type="text" id="message" placeholder="Type your message here...">
-    <button id="send">Send</button>
+    <div class="chat-container">
+        <div id="messages" class="messages"></div>
+        <div class="input-container">
+            <input type="text" id="username" placeholder="Enter your name" class="input">
+            <input type="text" id="message" placeholder="Type your message here..." class="input">
+            <button id="send" class="send-button">Send</button>
+        </div>
+    </div>
 </body>
 </html>

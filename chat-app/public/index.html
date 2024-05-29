@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +7,19 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <input id="username" placeholder="Insira seu nome" autocomplete="off" /><button id="set-username">Enviar </button>
+  <input id="username" placeholder="Insira seu nome" autocomplete="off" /><button id="set-username">Enviar</button>
   <ul id="messages"></ul>
   <form id="form" action="">
-    <input id="input" autocomplete="off" /><button id="send">Send</button>
+    <input id="input" autocomplete="off" /><button id="send">Enviar</button>
   </form>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@3.1.9-1/crypto-js.js"></script>
   <script>
     const socket = io();
     let username = '';
+    const secretKey = CryptoJS.enc.Utf8.parse('12345678901234567890123456789012'); // Chave secreta de exemplo
+    const iv = CryptoJS.enc.Utf8.parse('1234567890123456'); // IV de exemplo; deve ter 16 bytes
 
     document.getElementById('set-username').addEventListener('click', () => {
       const input = document.getElementById('username');
@@ -31,14 +34,16 @@
       e.preventDefault();
       const input = document.getElementById('input');
       if (input.value && username) {
-        socket.emit('chat message', { username, message: input.value });
+        const encryptedMessage = CryptoJS.AES.encrypt(input.value, secretKey, { iv: iv, padding: CryptoJS.pad.Pkcs7 }).toString();
+        socket.emit('chat message', { username, message: encryptedMessage });
         input.value = '';
       }
     });
 
     socket.on('chat message', (msg) => {
+      const decryptedMessage = CryptoJS.AES.decrypt(msg.message, secretKey, { iv: iv, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
       const item = document.createElement('li');
-      item.textContent = `${msg.username}: ${msg.message}`;
+      item.textContent = `${msg.username}: ${decryptedMessage}`;
       document.getElementById('messages').appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });
