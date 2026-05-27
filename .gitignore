@@ -1,0 +1,6 @@
+chat-python/data/*.db
+chat-python/data/*.sqlite3
+__pycache__/
+*.pyc
+.env
+.smoke-logs/

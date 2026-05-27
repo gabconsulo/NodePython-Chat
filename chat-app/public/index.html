@@ -1,52 +1,69 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Chat Distribuido Node + Python</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <input id="username" placeholder="Insira seu nome" autocomplete="off" /><button id="set-username">Enviar</button>
-  <ul id="messages"></ul>
-  <form id="form" action="">
-    <input id="input" autocomplete="off" /><button id="send">Enviar</button>
-  </form>
+  <main class="layout">
+    <section class="hero">
+      <p class="badge">Sistemas Distribuidos</p>
+      <h1>Chat academico com gateway, servico de negocio e moderacao.</h1>
+      <p class="subtitle">
+        O frontend conversa apenas com o gateway em Node.js, enquanto o processamento
+        e a persistencia ficam no servico Python.
+      </p>
+    </section>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/crypto-js@3.1.9-1/crypto-js.js"></script>
-  <script>
-    const socket = io();
-    let username = '';
-    const secretKey = CryptoJS.enc.Utf8.parse('12345678901234567890123456789012'); // Chave secreta de exemplo
-    const iv = CryptoJS.enc.Utf8.parse('1234567890123456'); // IV de exemplo; deve ter 16 bytes
+    <section class="panel panel-form">
+      <div class="panel-header">
+        <h2>Novo envio</h2>
+        <p>Preencha os dados e acompanhe o comportamento dos servicos.</p>
+      </div>
 
-    document.getElementById('set-username').addEventListener('click', () => {
-      const input = document.getElementById('username');
-      if (input.value) {
-        username = input.value;
-        input.style.display = 'none';
-        document.getElementById('set-username').style.display = 'none';
-      }
-    });
+      <form id="message-form" class="message-form">
+        <label>
+          Usuario
+          <input id="username" name="username" type="text" maxlength="40" placeholder="Ex.: Ana">
+        </label>
 
-    document.getElementById('form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const input = document.getElementById('input');
-      if (input.value && username) {
-        const encryptedMessage = CryptoJS.AES.encrypt(input.value, secretKey, { iv: iv, padding: CryptoJS.pad.Pkcs7 }).toString();
-        socket.emit('chat message', { username, message: encryptedMessage });
-        input.value = '';
-      }
-    });
+        <label>
+          Sala
+          <input id="room" name="room" type="text" maxlength="40" value="geral">
+        </label>
 
-    socket.on('chat message', (msg) => {
-      const decryptedMessage = CryptoJS.AES.decrypt(msg.message, secretKey, { iv: iv, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
-      const item = document.createElement('li');
-      item.textContent = `${msg.username}: ${decryptedMessage}`;
-      document.getElementById('messages').appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
-  </script>
+        <label>
+          Mensagem
+          <textarea id="content" name="content" rows="4" maxlength="280" placeholder="Digite sua mensagem"></textarea>
+        </label>
+
+        <button id="submit-button" type="submit">Enviar mensagem</button>
+      </form>
+
+      <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Status distribuido</h2>
+          <p>Health checks expostos pelo gateway.</p>
+        </div>
+        <div id="status-cards" class="status-cards"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Mensagens</h2>
+          <p>Atualizacao por polling para manter a demonstracao simples.</p>
+        </div>
+        <div id="messages" class="messages"></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
 </body>
 </html>

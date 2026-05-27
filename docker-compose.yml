@@ -1,0 +1,46 @@
+services:
+  gateway-service:
+    build:
+      context: ./chat-app
+    container_name: gateway-service
+    env_file:
+      - .env
+    environment:
+      CHAT_SERVICE_URL: http://chat-service:8081
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    depends_on:
+      chat-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  chat-service:
+    build:
+      context: ./chat-python
+    container_name: chat-service
+    env_file:
+      - .env
+    environment:
+      CHAT_DB_PATH: /data/chat.db
+      MODERATION_SERVICE_URL: http://moderation-service:8082
+    volumes:
+      - chat-data:/data
+    ports:
+      - "${CHAT_SERVICE_PORT:-8081}:8081"
+    depends_on:
+      moderation-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  moderation-service:
+    build:
+      context: ./moderation-service
+    container_name: moderation-service
+    env_file:
+      - .env
+    ports:
+      - "${MODERATION_PORT:-8082}:8082"
+    restart: unless-stopped
+
+volumes:
+  chat-data:
