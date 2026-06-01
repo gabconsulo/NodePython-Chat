@@ -2,7 +2,6 @@ services:
   gateway-service:
     build:
       context: ./chat-app
-    container_name: gateway-service
     env_file:
       - .env
     environment:
@@ -17,7 +16,6 @@ services:
   chat-service:
     build:
       context: ./chat-python
-    container_name: chat-service
     env_file:
       - .env
     environment:
@@ -35,11 +33,10 @@ services:
   moderation-service:
     build:
       context: ./moderation-service
-    container_name: moderation-service
     env_file:
       - .env
-    ports:
-      - "${MODERATION_PORT:-8082}:8082"
+    expose:
+      - "8082"
     restart: unless-stopped
 
 volumes:

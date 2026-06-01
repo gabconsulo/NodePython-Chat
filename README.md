@@ -138,12 +138,15 @@ Em Windows, na primeira instalacao do Docker Desktop com WSL2, pode ser necessar
 - Frontend: [http://localhost:8080](http://localhost:8080)
 - Gateway health: [http://localhost:8080/health](http://localhost:8080/health)
 - Chat health: [http://localhost:8081/health](http://localhost:8081/health)
-- Moderation health: [http://localhost:8082/health](http://localhost:8082/health)
+- Status distribuido completo: [http://localhost:8080/api/status](http://localhost:8080/api/status)
+
+O `moderation-service` fica exposto apenas dentro da rede Docker. Isso permite subir mais de uma replica do servico sem conflito de porta no host.
 
 ## Como demonstrar na apresentacao
 
 - Mostrar o frontend enviando mensagens.
 - Abrir o endpoint `/api/status` e destacar os tres servicos.
+- Escalar a moderacao com `docker compose up -d --scale moderation-service=2`.
 - Derrubar o `moderation-service` e enviar nova mensagem.
 - Explicar que a mensagem foi salva como `pending_review`, demonstrando resiliencia.
 - Mostrar que o historico continua apos reiniciar os containers porque o banco esta em volume persistente.
