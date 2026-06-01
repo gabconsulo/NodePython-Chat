@@ -181,9 +181,6 @@ Diretorio: `chat-app`
 
 ## Observacoes finais
 
-Este projeto **nao tenta ser enterprise**. Ele foi desenhado para ser:
-
 - facil de rodar;
 - facil de explicar;
 - simples de manter;
-- suficiente para demonstrar conceitos reais de sistemas distribuidos em contexto academico.
