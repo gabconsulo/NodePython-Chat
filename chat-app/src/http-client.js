@@ -29,12 +29,14 @@ async function requestJson(method, url, body, options = {}) {
         const error = new Error(data.error || `Request failed with status ${response.status}`);
         error.statusCode = response.status;
         error.payload = data;
+        error.retryable = response.status >= 500;
         throw error;
       }
 
       return data;
     } catch (error) {
       const isLastAttempt = attempt === retries;
+      const retryable = error.retryable ?? !error.statusCode;
 
       logger.warn("downstream_request_failed", {
         url,
@@ -44,7 +46,7 @@ async function requestJson(method, url, body, options = {}) {
         error: error.message
       });
 
-      if (isLastAttempt) {
+      if (isLastAttempt || !retryable) {
         throw error;
       }
 
