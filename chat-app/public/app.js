@@ -1,12 +1,16 @@
+// Elementos do DOM que serao manipulados
 const statusCards = document.getElementById("status-cards");
 const messagesContainer = document.getElementById("messages");
 const feedback = document.getElementById("feedback");
 const form = document.getElementById("message-form");
 const submitButton = document.getElementById("submit-button");
 
+// Rastreia o ID da última mensagem para carregamento incremental
 let lastMessageId = 0;
+// Rastreia a "assinatura" das mensagens renderizadas para evitar re-renders desnecessarios
 let lastRenderedSignature = "";
 
+// Escapa caracteres especiais para evitar XSS
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -16,11 +20,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+// Define mensagem de feedback ao usuario (sucesso ou erro)
 function setFeedback(message, isError = false) {
   feedback.textContent = message;
+  // Adiciona classe "error" se for erro, remove se for sucesso
   feedback.classList.toggle("error", isError);
 }
 
+// Formata um timestamp ISO para formato local legivel
 function formatTimestamp(timestamp) {
   try {
     return new Date(timestamp).toLocaleString("pt-BR");
@@ -29,7 +36,9 @@ function formatTimestamp(timestamp) {
   }
 }
 
+// Renderiza os cards de status dos servicos (gateway, chat service, moderacao)
 function renderStatus(data) {
+  // Define os 3 servicos monitorados e seus status
   const items = [
     {
       name: "Gateway",
@@ -52,6 +61,7 @@ function renderStatus(data) {
     }
   ];
 
+  // Gera HTML para cada card e renderiza
   statusCards.innerHTML = items
     .map(
       (item) => `
@@ -67,11 +77,14 @@ function renderStatus(data) {
     .join("");
 }
 
+// Cria uma "assinatura" das mensagens baseada em IDs e status (para detectar mudancas)
 function buildSignature(messages) {
   return messages.map((message) => `${message.id}:${message.status}`).join("|");
 }
 
+// Renderiza a lista de mensagens no DOM
 function renderMessages(messages) {
+  // Se a assinatura nao mudou, nao renderiza (otimizacao)
   const signature = buildSignature(messages);
   if (signature === lastRenderedSignature) {
     return;
@@ -79,11 +92,13 @@ function renderMessages(messages) {
 
   lastRenderedSignature = signature;
 
+  // Se nao ha mensagens, mostra estado vazio
   if (!messages.length) {
     messagesContainer.innerHTML = '<p class="empty-state">Nenhuma mensagem enviada ainda.</p>';
     return;
   }
 
+  // Renderiza cada mensagem como um article com header e conteudo
   messagesContainer.innerHTML = messages
     .map(
       (message) => `
@@ -101,6 +116,7 @@ function renderMessages(messages) {
     .join("");
 }
 
+// Carrega o status dos servicos via API
 async function loadStatus() {
   const response = await fetch("/api/status");
   if (!response.ok) {
@@ -111,6 +127,7 @@ async function loadStatus() {
   renderStatus(payload);
 }
 
+// Carrega as mensagens da sala atual
 async function loadMessages() {
   const room = document.getElementById("room").value || "geral";
   const response = await fetch(`/api/messages?room=${encodeURIComponent(room)}`);
@@ -120,12 +137,14 @@ async function loadMessages() {
 
   const payload = await response.json();
   const messages = payload.messages || [];
+  // Atualiza o ID da última mensagem para carregamento posterior
   if (messages.length) {
     lastMessageId = Math.max(lastMessageId, messages[messages.length - 1].id);
   }
   renderMessages(messages);
 }
 
+// Carrega status e mensagens em paralelo
 async function refreshDashboard() {
   try {
     await Promise.all([loadStatus(), loadMessages()]);
@@ -134,24 +153,29 @@ async function refreshDashboard() {
   }
 }
 
+// Listener para submissao do formulário de envio de mensagem
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
+  // Coleta dados do formulário
   const payload = {
     username: document.getElementById("username").value.trim(),
     room: document.getElementById("room").value.trim() || "geral",
     content: document.getElementById("content").value.trim()
   };
 
+  // Valida campos obrigatorios
   if (!payload.username || !payload.content) {
     setFeedback("Informe usuario e mensagem antes de enviar.", true);
     return;
   }
 
+  // Desabilita botao durante envio
   submitButton.disabled = true;
   setFeedback("Enviando mensagem para o gateway...");
 
   try {
+    // Envia mensagem via API
     const response = await fetch("/api/messages", {
       method: "POST",
       headers: {
@@ -162,24 +186,31 @@ form.addEventListener("submit", async (event) => {
 
     const data = await response.json();
 
+    // Se resposta nao foi OK, lança erro com mensagem do servidor
     if (!response.ok) {
       throw new Error(data.error || "Falha ao enviar a mensagem.");
     }
 
+    // Limpa campo de entrada apos sucesso
     document.getElementById("content").value = "";
+    // Mostra feedback diferente se foi aceita ou salva em modo degradado
     setFeedback(
       data.message.status === "pending_review"
         ? "Mensagem salva em modo degradado: moderacao indisponivel."
         : "Mensagem entregue com sucesso."
     );
 
+    // Recarrega dashboard
     await refreshDashboard();
   } catch (error) {
     setFeedback(error.message, true);
   } finally {
+    // Reabilita botao
     submitButton.disabled = false;
   }
 });
 
+// Carrega dashboard na primeira vez
 refreshDashboard();
+// Recarrega dashboard a cada 2,5 segundos
 setInterval(refreshDashboard, 2500);
