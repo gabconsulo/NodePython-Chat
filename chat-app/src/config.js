@@ -6,8 +6,8 @@ function readNumber(value, fallback) {
 
 // Exporta configuracoes do gateway lidas das variaveis de ambiente
 module.exports = {
-  // Porta em que o gateway escuta (padrao 8080)
-  port: readNumber(process.env.GATEWAY_PORT, 8080),
+  // Porta em que o gateway escuta (Render injeta PORT; local usa GATEWAY_PORT)
+  port: readNumber(process.env.PORT || process.env.GATEWAY_PORT, 8080),
   // URL completa do servico de chat (padrao localhost:8081)
   chatServiceUrl: process.env.CHAT_SERVICE_URL || "http://127.0.0.1:8081",
   // Timeout em ms para requisicoes feitas pelo gateway (padrao 5s)

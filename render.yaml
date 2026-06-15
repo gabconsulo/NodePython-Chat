@@ -1,0 +1,63 @@
+# Blueprint Render (plano gratuito) — 3 servicos web conectados por URL interna.
+# Deploy: https://dashboard.render.com/blueprints -> New Blueprint Instance -> repo GitHub
+
+services:
+  - type: web
+    name: nodepython-moderation
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./moderation-service/Dockerfile
+    dockerContext: ./moderation-service
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8082"
+      - key: BLOCKED_TERMS
+        value: spam,ofensa,palavrao
+
+  - type: web
+    name: nodepython-chat
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./chat-python/Dockerfile
+    dockerContext: ./chat-python
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8081"
+      - key: CHAT_DB_PATH
+        value: /tmp/chat.db
+      - key: ALLOW_DEGRADED_WRITES
+        value: "true"
+      - key: MODERATION_REQUEST_TIMEOUT_SECONDS
+        value: "10"
+      - key: MODERATION_MAX_RETRIES
+        value: "3"
+      - key: MODERATION_SERVICE_URL
+        fromService:
+          type: web
+          name: nodepython-moderation
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: nodepython-gateway
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./chat-app/Dockerfile
+    dockerContext: ./chat-app
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: GATEWAY_REQUEST_TIMEOUT_MS
+        value: "30000"
+      - key: GATEWAY_MAX_RETRIES
+        value: "3"
+      - key: CHAT_SERVICE_URL
+        fromService:
+          type: web
+          name: nodepython-chat
+          envVarKey: RENDER_EXTERNAL_URL

@@ -142,6 +142,17 @@ Em Windows, na primeira instalacao do Docker Desktop com WSL2, pode ser necessar
 
 O `moderation-service` fica exposto apenas dentro da rede Docker. Isso permite subir mais de uma replica do servico sem conflito de porta no host.
 
+## Deploy gratuito na nuvem (Render)
+
+Para rodar os 3 microservicos na nuvem sem pagar, use o blueprint incluido no repositorio. O passo a passo completo esta em [DEPLOY.md](./DEPLOY.md).
+
+Resumo:
+
+1. Faca push deste repositorio para o GitHub
+2. Crie conta em [render.com](https://render.com)
+3. **Blueprints** → **New Blueprint Instance** → selecione este repo
+4. Acesse a URL do servico `nodepython-gateway`
+
 ## Como demonstrar na apresentacao
 
 - Mostrar o frontend enviando mensagens.

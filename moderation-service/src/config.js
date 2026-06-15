@@ -6,8 +6,8 @@ function readNumber(value, fallback) {
 
 // Exporta configuracoes do servico de moderacao
 module.exports = {
-  // Porta em que o servico de moderacao escuta (padrao 8082)
-  port: readNumber(process.env.MODERATION_PORT, 8082),
+  // Porta em que o servico de moderacao escuta (Render injeta PORT; local usa MODERATION_PORT)
+  port: readNumber(process.env.PORT || process.env.MODERATION_PORT, 8082),
   // Tamanho maximo de uma mensagem em caracteres (padrao 280)
   maxMessageLength: readNumber(process.env.MAX_MESSAGE_LENGTH, 280),
   // Lista de termos bloqueados - lê da variavel de ambiente e faz parsing

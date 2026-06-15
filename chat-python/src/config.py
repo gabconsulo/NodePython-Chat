@@ -20,8 +20,8 @@ def read_bool(name: str, default: bool) -> bool:
     return value.lower() in {"1", "true", "yes", "on"}
 
 
-# Porta em que o servico de chat escuta (padrao 8081)
-PORT = read_int("CHAT_SERVICE_PORT", 8081)
+# Porta em que o servico de chat escuta (Render injeta PORT; local usa CHAT_SERVICE_PORT)
+PORT = read_int("PORT", read_int("CHAT_SERVICE_PORT", 8081))
 # Caminho do banco de dados SQLite (padrao data/chat.db)
 DATABASE_PATH = os.getenv("CHAT_DB_PATH", os.path.join("data", "chat.db"))
 # URL do servico de moderacao (padrao localhost:8082)
