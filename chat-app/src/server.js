@@ -63,11 +63,11 @@ function parseBody(request) {
 
 // Resolve um caminho de arquivo estático de forma segura (previne path traversal)
 function resolveStaticFile(requestPath) {
-  const safePath = requestPath === "/" ? "/index.html" : requestPath;
-  const filePath = path.normalize(path.join(publicDir, safePath));
+  const relativePath = requestPath === "/" ? "index.html" : requestPath.replace(/^\/+/, "");
+  const filePath = path.resolve(publicDir, relativePath);
 
   // Verifica se o arquivo resolvido ainda esta dentro do diretorio publico (seguranca)
-  if (!filePath.startsWith(publicDir)) {
+  if (!filePath.startsWith(`${publicDir}${path.sep}`) && filePath !== publicDir) {
     return null;
   }
 
